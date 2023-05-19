@@ -87,3 +87,51 @@ This will clear player from the canvas as you are only drawing it once when outs
 Move player.draw inside animate
 Once you can see the text on last input and the player sprite, remove console.log input.lastKey in animate
 //State design pattern next
+Go to state.js and create a states object variable and export it
+Fill states object with STANDING_LEFT and STANDING_RIGHT properties, and set them to 0 and 1 respectively
+Create State class and pass state in the constructor's argument
+Turn state into a class property
+In state design pattern, each state is defined by a separate function
+Create a child class StandingLeft using the extends keyword to the parent, State class
+In StandingLeft class, the player argument is passed because the direction inputs only concern the player
+Use super method in the constructor to gain access to its parent class
+The argument passed into super will determine what 'state', the argument in which you passed in State class becomes
+In this case, "STANDING LEFT" is passed into super, and State class will recognise the argument passed into super as the state of that particular child class
+Now, convert player argument into class property in StandingLeft
+Add an enter method, and handleInput method in StandingLeft
+Copy and paste StandingLeft to create a second set and replace StandingLeft with StandingRight, and do the same for the super argument
+\*4 principles of OOP --> Encapsulation, inheritance, polymorphism, Abstraction
+Child classes will look inside itself first before moving to parent class if it cannot find properties, or calls inside itself. This is inheritance
+Polymorphism is when identically named methods inside child classes exhibit different behaviors
+handleInput method will use the input argument to determine which key represent which direction
+The enter method will visually show in which frame the sprite is posing(standing left or right in this case)
+In the sprite sheet, standing right pose is at index 0(1st column) while standing left is at index 1(2nd column)
+You will access the frameY property in Player class to achieve the above so use this keyword to gain access to player's frameY property and set it to 1
+Do the same for StandingRight but set it to 0 instead
+In specific states, objects will only react to certain inputs defined explicitly and inputs that are not defined will be ignored
+In handleInput for StandingLeft, if input equals to "PRESS right" is true(PRESS right can be found in input.js for ArrowRight), set state to StandingRight(comment the set state part because it's pseudo code and we cannot do it yet)
+Do the same for StandingRight but for the opposite
+To enable the above, you will need to add a method in Player class that will have state as its argument
+Add setState method with state argument
+Inside setState, set currentState property to states array with state argument as its array item
+Since states is currently empty, setState will not work for now
+After setting currentState to new state(which is empty for now), call enter method on currentState
+Moving back to handleInput's pseudo code, now we have setState method to swap between states, remove the comment and use the setState method on player
+Since setState in Player requires a state argument, use the properties that we have defined in the states object, STANDING_LEFT and STANDING_RIGHT
+For StandingLeft child class, if input is right, we want the state of the player to turn right(STANDING_RIGHT)
+Pass the relevant states property as the argument in the setState method in handleInput
+Do the same for StandingRight class
+Now, export the child classes and import into player.js so Player class can gain access to them
+In the states object, STANDING_LEFT and RIGHT are what we call enum where the object properties are represented by numbers for easy access
+In the states array property in Player, instead of an empty array, create new instance of StandingLeft and StandingRight in that order(the order needs to reflect the order in your enum)
+We will also need the ability to call handleInput over and over to listen for new inputs and change states when needed
+Create update method in Player with input argument
+Call handleInput method with input argument on currentState which will determine what inputs handleInput is being processed in state.js
+In animate, call update on player with the required argument
+In the states array in Player, since StandingLeft and StandingRight class requires the player argument, you will need to pass it along in the corresponding StandingLeft and StandingRight instances in states array as well
+Since the instances are created within the player argument(Player class), you can just use this keyword as their arguments
+To be clearer, we can display currentState as text on the canvas
+We will do this using the drawStatusText function
+Pass the player argument to both drawStatusText method in animate and the original
+Use fillText(text, x, y) method in drawStatusText in utils.js to display the text at your desired coordinates, using the currentState property in Player(you'll need to access state as well in state.js)
+Change this.states[0] to this.states[1] because STANDING_RIGHT is your starting position
