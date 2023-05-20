@@ -135,3 +135,45 @@ We will do this using the drawStatusText function
 Pass the player argument to both drawStatusText method in animate and the original
 Use fillText(text, x, y) method in drawStatusText in utils.js to display the text at your desired coordinates, using the currentState property in Player(you'll need to access state as well in state.js)
 Change this.states[0] to this.states[1] because STANDING_RIGHT is your starting position
+Once StandingLeft and StandingRight works, let's implement a sitting down position
+Add ArrowDown cases in InputHandler
+Create a new class in state.js called SittingLeft and copy the code that you have in StandingLeft or right with the appropriate changes for super argument and frameY position
+For the handleInput method in SittingLeft, if right arrow key is pressed, setState to SITTING_RIGHT(which we have not created), else if up is pressed, setState to STANDING_LEFT(because player is facing left currently)
+Now add SITTING_LEFT and RIGHT to the states object
+Now, add an ArrowUp case in InputHandler
+With SittingLeft done, do the same for SittingRight, changing areas where appropriate(super, frameY, conditions)
+Import the new state classes into player.js
+Create new instances of them in states array in Player just like StandingLeft and right
+The logic for SittingLeft and right is done but we have no access to it currently
+In StandingLeft and right conditions, add an else if for down key press and set them to the appropriate sitting direction
+Test it out in the browser, player should be able to turn left and right standing and sitting down and stand back up
+Maybe you want player to stand up immediately if the down key press is let go
+Add another else if condition in handleInput for SittingLeft where if input is RELEASE down, setState to STANDING_LEFT
+Do the same for SittingRight
+This will revert player to the standing pose after down key press is released(if that is what you want for your game)
+This is only to show you changes are easy to make for player behaviour with this code structure
+If you implemented the RELEASE down condition, the PRESS up condition is not needed anymore since player goes into standing position after down key is released
+Now, let's implement running left and right
+Add running left and right to states object
+Create RunningLeft and RunningRight child classes(just like the previous child classes) and make the appropriate changes
+For the conditions, when right key is pressed in RunningLeft(the opposite direction,), setState to running right
+Else if RELEASE left, setState to standing left
+Else if down key press, setState to sitting left
+Do the same for RunningRight with the appropriate directions
+Just like sitting states, you need a way to gain access to the running states
+Since player should run while in standing state, we should add an else if condition to allow player to enter running state in standing state
+In StandingLeft, add an else if input is left key press, setState to running left
+\*\*For some reason you do not need RELEASE left right condition to revert back to standing not sure why
+Do the same for StandingRight with the appropriate changes
+In player.js, import the newly created child classes and make new instances of these classes in the states array in Player(in the correct order according to your enum)
+Once running states are shown correctly, we want to actually show the running animation(cycling through the running sprite row)
+Add speed property in Player and set it to 0
+Add maxSpeed property in Player and set it to 10;
+In the enter methods for RunningLeft and right, set speed to negative maxSpeed for left and the opposite for right
+In update method for Player, increment x position by speed
+Set speed back to 0 in standing and sitting states in their enter methods to prevent player from moving indefinitely when left right keys are pressed
+player sprite should now stop when you release left or right keys
+To prevent player from moving outside of canvas, in Player update, create a horizontal movement section with the previous x increment by speed inside
+Add a condition inside this section where if x is less than or equal to 0, set x to 0(for the left side)
+Else if x is more than or equal to gameWidth minus width, set x to gameWidth minus width(for the right side)
+//Jumping and falling animation
