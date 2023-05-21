@@ -176,4 +176,79 @@ player sprite should now stop when you release left or right keys
 To prevent player from moving outside of canvas, in Player update, create a horizontal movement section with the previous x increment by speed inside
 Add a condition inside this section where if x is less than or equal to 0, set x to 0(for the left side)
 Else if x is more than or equal to gameWidth minus width, set x to gameWidth minus width(for the right side)
-//Jumping and falling animation
+We will now go into jumping and falling animation
+Player will swap into falling state at peak height but will not require user input, unlike the other basic states
+Create Jumping enums in states object
+Just like before, create Jumping state classes and change the values in constructor and enter method accordingly
+Delete speed in enter(if you copy pasted it) because you want jumping speed to be inherited(maybe)
+Delete everything in handleInput method(again, if you copy pasted it from previous state templates)
+Before we add conditions in handleInput, let's just add conditions for jumping states in the standing states(because player needs to be on the 'ground' before it can jump)
+Import them into player.js and add the new instances into states array property
+You can check your browser to see if the input for jump is correct
+handleInput in the jumping states are empty which is why player is stuck in jump mode without any way to 'unstuck' it
+We will now add helper properties in Player and add a vertical movement section in Player update
+Add velocityY property in Player and set it to 0
+Add weight property and give it 0.5 value
+In vertical movement section, increment y by velocityY
+Incrementing by velocityY will currently do nothing since the value is 0
+Add a condition where if y is less than gameHeight minus height(meaning if player is off the ground/x axis), increment velocityY by weight
+Else, set velocityY back to 0
+In state.js, in the enter method for jumping states, decrement velocityY by 20
+With the addition of jumping states and other states that require the jumping states, we will need to check if player is on the ground or off the ground
+Add a helper method in player called onGround
+We know that if player y position is less than gameHeight minus height, it is off the ground(written as the condition in vertical movement to check if player is on the ground)
+In onGround method, we can just return the reverse of the above expression to get a true or false value(add equals to as well)
+If it is true, player is on the ground and vice versa
+Since you have this onGround helper method, you can use it in the condition in vertical movement section instead of writing the reverse conditions manually
+Change the condition if y is less than gameHeight minus height to if onGround is not true(!onGround())
+In jumping left state, if right key input is pressed, setState to jumping right
+Do the same for jumping right with the appropriate directional key
+In the browser, you will see that player will keep jumping when you press the left and right keys after pressing up
+This is because in the enter methods, velocityY is being decremented(up direction in the y axis) for each left and key presses
+To prevent this, we will add a condition where velocityY is decremented only when player is on the ground
+Currently, player can only jump vertically with no changes in x position
+Give player some horizontal movement by setting speed in enter methods for jumping states by half the maxSpeed(For jumping left state, speed must be negative as on the x axis, moving left is negative)
+When testing the jumps, you will notice that player do not revert back to standing states
+Add an else if condition in jumping states' handleInput, where if player is on the ground, setState back to the appropriate standing state
+Notice you do not slide on the ground anymore as well because you are in standing state now
+To understand the jumping states better, observe how velocityY is being incremented
+As you know, upwards in the y axis is negative and downwards is positive
+Since in the enter methods in jumping states you are decrementing velocityY by a value(20 in this case), velocityY starts at -20 and gets incremented by the weight, which is 0.5
+Negative is upwards so starting point at -20 means player will 'jump' and -20 will be incremented by 0.5 till it reaches 0 which is the peak
+Since positive in y axis is down, player will be fall and once player is on the ground, the else condition in Player update kicks in and velocityY is set to 0
+In javascript canvas, if your weight has too high of a value, the browser could possibly not set velocityY back to 0 on time and player might clip through the ground(set weight to like >10 and see that player will clip through the ground)
+Tom prevent this, set a condition in Player update where if y is more than gameHeight minus height(meaning if player ever clips the below the x axis), set y to gameHeight minus height(set player back on the ground)
+We will now work on the falling states
+Add falling states into states object
+Create the falling states child classes with appropriate changes in super and frameY
+In their handleInput methods, setState to their appropriate falling directions(\*\*Remember you are changing between states all the time with each different key press, if a key press does not change the state, then there is no need to change the state)
+Imagine what the player is doing in that state and adjust the handleInput conditions logically(test it out in the browser)
+Import them and instantiate them in states array in Player
+So how do we enter falling state?
+Imagine you are the player, you jump, reaches peak and that's where you start falling
+So you want to add the falling states in the jumping states handleInput
+Since we know when player starts falling, velocityY will be more than 0, we add a condition where if velocityY is more than 0, setState to falling state with the appropriate direction in the jumping states
+Since there are falling states now, we can remove the else if statement to check if player is on the ground in jumping states because falling states check for them now
+Once the states are working correctly, we will start animating the sprite instead of just showing frame 0 of the sprite position
+In Player properties, add the initial starting maxFrame and set it to 6(the max number of standing sprite which starts from 0 because javascript)
+In Player draw, add the condition where if frameX is less than maxFrame, increment frameX
+Else set frameX back to 0
+In state.js, when entering different states, set maxFrame according to the max frames of the state(i.e standing left has 6, standing right has 6, sitting left has however many etc)
+To cap animation frames from going too fast, we can cap it via time stamps property which requestAnimationFrame method will provide(as seen in previous projects)
+In load event listener, add a holder variable called lastTime and set it to 0
+Pass timeStamp into animate as a parameter
+In animate method, add deltaTime which represents the difference between the this animation loop(timeStamp) and last animation loop(lastTime)
+After the above, set lastTime to timeStamp so the next loop will update lastTime value to be reused in the deltaTime calculation
+Pass initial value of 0 when calling animate because the first requestAnimationFrame is undefined since there is nothing to animate yet so you need to give it a starting value
+deltaTime will be used to unify and standardized the speed of changing frames horizontally across the sprite sheet on all machine types
+This will happen on the draw method so pass deltaTime as a required parameter in animate where draw is called on player
+Do it in the original draw method in Player as well
+We will need three helper properties in Player to use deltaTime
+Add fps property and set it to 30
+Add frameTimer and set it to 0
+Add frameInterval and set it to 1000 divided by fps(which is the number of milliseconds we want passed before displaying the next frame of the sprite sheet)
+In Player draw, only when frameTimer is more than frameInterval, you invoke the condition for incrementing frameX you have written before(move that condition into the new condition you made)
+Also set frameTimer back to 0 in the new condition after invoking the frameX condition
+Else, increment frameTimer by deltaTime to accumulate the milliseconds before drawing next frame(because how else will frameTimer ever be more than frameInterval?)
+Your screen's refresh rate is the bottleneck regardless of how high you increase fps property value so the animation frame will always be capped at the maximum refresh rate your screen can handle(i.e using virtual machine on my pc changing fps to 200, 150 or even 60 shows the same animation speed. When you change it to 50 or below only then you can see animation starts to slow down meaning my refresh rate cap is around 50)
+Done!(Still confused but whatever)
